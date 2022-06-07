@@ -5,6 +5,5 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 app.use(bodyParser.json())
-app.use('/api', require('./pipeline/router'))
-
+app.use('/api',require('./pipeline/pipeline-router'))
 module.exports = app
