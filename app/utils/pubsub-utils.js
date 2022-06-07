@@ -5,4 +5,12 @@ const publishMessage = async (pubSubClient, topicName, data) => {
     console.log(`Message ${messageId} published.`);
     return messageId;
 }
-module.exports = { publishMessage }
+const listenForPushMessages = (payload) => {
+    const message = Buffer.from(payload, 'base64').toString(
+        'utf-8'
+    );
+    let parsedMessage = JSON.parse(message);
+    return parsedMessage;
+}
+
+module.exports = { publishMessage, listenForPushMessages }

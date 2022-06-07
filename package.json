@@ -5,11 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./app/server.js"
+    "start": "nodemon ./app/server.js",
+    "start:listener": "nodemon ./app/listener.js",
+    "start:test":"node ./app/utils/bigquery-utils.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/bigquery": "^6.0.0",
     "@google-cloud/pubsub": "^3.0.1",
     "body-parser": "^1.20.0",
     "dotenv": "^16.0.1",
