@@ -8,6 +8,7 @@ app.get('/', (req, res) => {
 })
 app.use(bodyParser.json())
 app.use('/api',require('./pipeline/pipeline-router'))
+app.use('/api',require('./metrics/metrics-router'))
 app.use(errorMiddleware)
 
 async function errorMiddleware(err,req,res,next){

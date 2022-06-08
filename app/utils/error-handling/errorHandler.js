@@ -6,6 +6,7 @@ class ErrorHandler{
            console.log("test")
        }
        else{
+           pino.info("test")
            console.log(err)
        }
         

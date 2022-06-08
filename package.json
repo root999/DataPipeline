@@ -4,8 +4,8 @@
   "description": "A simple data pipeline service",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./app/server.js | pino-pretty",
+    "test": "jest --coverage",
+    "start": "nodemon ./app/server.js  | pino-pretty",
     "start:listener": "nodemon ./app/listener.js",
     "start:test": "node ./app/utils/bigquery-utils.js"
   },
