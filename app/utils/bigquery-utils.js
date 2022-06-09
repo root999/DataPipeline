@@ -1,13 +1,12 @@
 const { BigQuery } = require('@google-cloud/bigquery');
+const { BaseError } = require('./error-handling/BaseError');
 const bigquery = new BigQuery();
-require('dotenv').config()
 const queryBQ = async (query) => {
     const options = {
         query: query,
         useLegacySql: false
     };
     let job;
-
     try {
         job = (await bigquery.createQueryJob(options))[0]
         console.log(`Job ${job.id} started`)
@@ -19,8 +18,7 @@ const queryBQ = async (query) => {
         return results
    }
     catch (err) {
-        //console.log(err)
-        throw err;
+        throw new BaseError(err.message,'queryBQ',false);
     }
 }
 

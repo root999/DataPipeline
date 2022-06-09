@@ -11,7 +11,14 @@ Eğer filePath PubSub() constructor'u içerisine verilmiyorsa env variable aras�
 ilgili auth.json dosyası kullanılarak erişim sağlanıyor. 
 */
 config.pubsub = {
-  
+  projectName: process.env.GOOGLE_CLOUD_PROJECT,
+  pubsub_topic: process.env.PUBSUB_TOPIC
+}
+config.bigquery = {
+  tableName : process.env.BQ_TABLENAME
+}
+config.corruptedQueryForTest = {
+  query: "SELECT * FROM "
 }
 
 if (PRODUCTION) {
