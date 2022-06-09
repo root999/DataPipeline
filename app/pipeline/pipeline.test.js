@@ -1,7 +1,6 @@
 const request = require('supertest')
 const app = require('../index')
-require('dotenv').config()
-process.env.PUBSUB_TOPIC = "test"
+const config = require('../config')
 var payload = {
     "type": "son test",
     "session_id": "9FDA74C2-AB57-4840-87D0-64324772B5A2", "event_name": "click",
@@ -16,13 +15,19 @@ describe('PubSub publish message', () => {
     test('responses with message published', async () => {
        const res = await request(app).post('/api/sendEvents')
         .set('Content-Type', 'application/json')
-        .send(payload)
-        .expect(200)
+        .send(payload);
+        const messageId = res.body.message.split(" ")[1]
+        console.log(messageId)
+        expect(200)
+        expect(res.body.message).toEqual(`Message ${messageId} published.`)
     })
     test('return error when user sends empty body',async () =>{
         const res = await request(app).post('/api/sendEvents')
         .set('Content-Type', 'application/json')
-        .send()
-        .expect(500)
+        .send();
+        expect(500)
+        expect(res.error.text).toEqual('Request body empty!')
+
     })
 })
+module.exports = payload
