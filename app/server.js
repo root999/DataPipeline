@@ -1,9 +1,11 @@
+const app = require('./index');
+const config = require('./config');
 
-var app = require('./index')
-var config = require('./config')
-app.listen(config.express.port, config.express.ip, function (error) {
+require('dotenv').config();
+
+app.listen(config.express.port, config.express.ip, (error) => {
   if (error) {
-    process.exit(10)
+    process.exit(10);
   }
-  console.log(`its listeninf ${config.express.port}`)
-})
+  console.log(`service listening on port ${config.express.port}`);
+});
