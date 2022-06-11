@@ -1,64 +1,54 @@
-const { queryBQ } = require('../utils/bigquery-utils');
-
-const config = require('../config');
-
-const { tableName } = config.bigquery;
+const { createQueries } = require('../utils/create-queries');
 
 module.exports = {
   getMetrics: async (req, res, next) => {
-    const today = new Date().toISOString().substring(0, 10); //  today's date as YYYY-MM-DD
     try {
-      const queryDailyActiveUserCount = `SELECT COUNT(DISTINCT user_id) as active_user_count 
-                                    FROM \`${tableName}\` 
-                                    WHERE DATE(event_time) = "${today}"`;
-
-      const queryDailyActiveSession = `SELECT AVG(timediff) as daily_average_session
-                                            FROM 
-                                            (SELECT time_diff(TIME(MAX(event_time)),TIME(MIN(event_time)),MINUTE) as timediff 
-                                                FROM \`${tableName}\` 
-                                                WHERE DATE(event_time) = "${today}" 
-                                                GROUP BY session_id)`;
-
-      const queryTotalUserCount = `SELECT COUNT(*) as total_users
-                                            FROM (SELECT COUNT(*) 
-                                                    FROM \`${tableName}\`  
-                                                    GROUP BY user_id )`;
-
-      const queryDailyNewUserCount = `SELECT COUNT(t1.user_id) as daily_new_user FROM \`codeway-352522.codeway.codeay-partitioned\` as t1 
-                                                LEFT JOIN (SELECT user_id FROM \`codeway-352522.codeway.codeay-partitioned\` 
-                                                            WHERE DATE(event_time)<current_date('UTC+3') GROUP BY user_id) as t2 
-                                                            ON t1.user_id =t2.user_id  WHERE t2.user_id is null`;
       let result;
+      const [queries, statDays] = createQueries();
       /*
       Querylerin sonuçları aşağıdaki gibi dönmekte. dolayısıyla total_user bilgisine
       values[0][0].total_user şeklinde ulaşıyoruz
+      // Aşağıdaki sorgu örneği 12 Haziran tarihinde son 3 günün verilerini göstermekte
       [
-          [ { total_user: 4 } ],
-          [ { daily_average_session: 320 } ],
-          [ { active_user_count: 3 } ],
-          [ { daily_new_user: 1 } ]
+        [ { total_users: 8 } ],       12 Haziran itibariyle toplam kullanıcı sayısı
+        [ { active_user_count: 0 } ], 12 Haziran günü aktif kullanıcı sayısı
+        [ { daily_average_session: null } ],  12 Haziran günü ortalama session süresi (dakika)
+        [ { daily_new_user: 0 } ],  12 Haziran günü yeni kullanıcı sayısı
+        [ { active_user_count: 1 } ], 11 Haziran günü aktif kullanıcı sayısı
+        [ { daily_average_session: 0 } ], 11 Haziran günü ortalama session süresi
+        [ { daily_new_user: 1 } ],  11 Haziran günü yeni kullanıcı sayısı
+        [ { active_user_count: 1 } ], 10 Haziran günü aktif kullanıcı sayısı
+        [ { daily_average_session: 0 } ], 10 Haziran günü ortalama session süresi
+        [ { daily_new_user: 1 } ] 10 Haziran günü yeni kullanıcı sayısı
       ]
       */
-      await Promise.all([queryBQ(queryTotalUserCount), queryBQ(queryDailyActiveSession),
-        queryBQ(queryDailyActiveUserCount), queryBQ(queryDailyNewUserCount)])
+      await Promise.all(queries)
         .then((values) => {
+          const dailyStats = [];
+          // values[0][0] total kullanıcı sayısı olduğu için response'de günlük
+          // veriler içerisinde bulunmayacak. Bu sebeple i =1 olarak başlanıyor
+          // Ayrıca her 3 eleman 1 günün verisi olduğu için for döngüsü
+          // (yapılan sorgu sayısı-1) kere dönmeli -Total Count bir kere çağırıldığı için-
+          // her bir döngüde 3 elemanı birden okuduğumuz için i +=3 olarak ilerliyor.
+          for (let i = 1; i <= (values.length - 1); i += 3) {
+            const dailyStatTemp = {
+              date: statDays[Math.floor(i / 3)],
+              active_user_count: values[i][0].active_user_count,
+              average_session_duration: values[i + 1][0].daily_average_session,
+              new_user_count: values[i + 2][0].daily_new_user,
+            };
+            dailyStats.push(dailyStatTemp);
+          }
           result = {
             result: 'Success',
             total_users: values[0][0].total_user,
-            daily_stats: [
-              {
-                date: today,
-                average_session_duration: values[1][0].daily_average_session,
-                active_user_count: values[2][0].active_user_count,
-                new_user_count: values[3][0].daily_new_user,
-              },
-            ],
+            daily_stats: dailyStats,
           };
         }).catch((error) => {
           throw error;
         });
       res.send(result);
-    // eslint-disable-next-line brace-style
+      // eslint-disable-next-line brace-style
     }
     //  testlerde buradaki hatayı yakalayamadım.
     //  TO-DO: Çözüm bul

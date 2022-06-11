@@ -2,7 +2,24 @@ const express = require('express');
 
 const app = express();
 const bodyParser = require('body-parser');
+
+const { expressjwt: jwt } = require('express-jwt');
+const jwks = require('jwks-rsa');
+
 const errorHandler = require('./utils/error-handling/errorHandler');
+const { BaseError } = require('./utils/error-handling/BaseError');
+
+const jwtCheck = jwt({
+  secret: jwks.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: 'https://dev-2a75vjz3.eu.auth0.com/.well-known/jwks.json',
+  }),
+  audience: 'https://codeway-api',
+  issuer: 'https://dev-2a75vjz3.eu.auth0.com/',
+  algorithms: ['RS256'],
+});
 
 // eslint-disable-next-line no-unused-vars
 async function errorMiddleware(err, req, res, next) {
@@ -11,7 +28,17 @@ async function errorMiddleware(err, req, res, next) {
     process.exit(1);
   }
 }
+app.use(jwtCheck);
 
+// Handling authentication error.
+app.use((err, req, res, next) => {
+  if (err.name === 'UnauthorizedError') {
+    res.status(401).send('invalid token...');
+    throw new BaseError(err.inner.message, 'authentication', true);
+  } else {
+    next(err);
+  }
+});
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
