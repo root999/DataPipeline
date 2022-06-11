@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 const request = require('supertest');
 const app = require('../index');
+const config = require('../config');
 
 const payload = {
   type: 'son test',
@@ -13,11 +14,12 @@ const payload = {
   city: 'Istanbul',
   user_id: 'Uu1qJzlfrxYxOS5z1kfAbmSA5pF2',
 };
-// jest ile çalıştırdığımız için describe gibi metotların tanımlanmasına ihtiyacımız yok
+
 describe('PubSub publish message', () => {
   test('responses with message published', async () => {
     const res = await request(app).post('/api/sendEvents')
       .set('Content-Type', 'application/json')
+      .auth(config.authToken.token, { type: 'bearer' })
       .send(payload);
     const messageId = res.body.message.split(' ')[1];
     expect(200);
@@ -26,9 +28,9 @@ describe('PubSub publish message', () => {
   test('return error when user sends empty body', async () => {
     const res = await request(app).post('/api/sendEvents')
       .set('Content-Type', 'application/json')
+      .auth(config.authToken.token, { type: 'bearer' })
       .send();
     expect(500);
     expect(res.error.text).toEqual('Request body empty!');
   });
 });
-module.exports = payload;

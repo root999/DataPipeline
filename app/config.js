@@ -10,6 +10,9 @@ config.express = {
 config.logPath = {
   path: './app/logs/combined.log',
 };
+config.authToken = {
+  token: process.env.AUTH_TOKEN,
+};
 
 /*
 pubsub için authentication bilgilerini burada setleyebilirim.
