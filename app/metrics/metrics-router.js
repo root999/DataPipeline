@@ -1,7 +1,6 @@
-const { Router } = require('express');
+const router = require('express').Router();
 const metricsController = require('./metrics-controller');
-var router = require('express').Router()
 
-router.get('/metrics',metricsController.getMetrics);
+router.get('/metrics', metricsController.getMetrics);
 
-module.exports = router
+module.exports = router;
