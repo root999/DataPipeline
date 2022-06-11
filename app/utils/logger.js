@@ -1,9 +1,9 @@
 const pino = require('pino');
-
+const config = require('../config');
 // Pino ile hem konsola hem dosyaya log basılıyor.
 const streams = [
   { stream: process.stdout },
-  { stream: pino.destination(`${__dirname}/combined.log`) },
+  { stream: pino.destination(config.logPath.path) },
 ];
 const levels = {
   emerg: 80,

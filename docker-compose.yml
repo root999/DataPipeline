@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  my_app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - ./app/logs:/app/app/logs
+    environment:
+      NODE_ENV: development
+      PORT: 3000
