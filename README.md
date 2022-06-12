@@ -56,6 +56,7 @@ api/getMetrics endpoint.
     ]
 }
 ```
+
 # Environment vars
 This project uses the following environment variables:
 
@@ -96,6 +97,9 @@ npm start
 cd DataPipeline
 docker-compose up
 ```
+## Couple things to point out
+
+The project structured based on NodeJS best practices guides. I tried to make a central error handling mechanism to handle errors and created a BaseError class that can help developers to examine bugs in the code. The errors basically divided into two different modules, Operational Errors and Programmers Errors. Operational Errors are happens when user make a mistake like sending an empty body. These errors are handled in central error handling mechanism and treated as not required to restart the system. Programmer's errors are basically bugs and require immediate exit from the project and restart. Central error handling mechanism checks if an error is operational or not and decides whether it should restart or not.
 
 ## Project Structure
 The folder structure of this app is explained below:
