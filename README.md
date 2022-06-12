@@ -26,7 +26,7 @@ api/getMetrics endpoint.
     "message": "Message 4720481643586628 published."
 }
 ````
-Example response from GET /api/metrics
+## Example response from GET /api/metrics
 ```
 {
     "result": "Success",
