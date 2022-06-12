@@ -4,6 +4,7 @@ module.exports = {
   getMetrics: async (req, res, next) => {
     try {
       let result;
+      // statDays dizisi ile ilgili günün tarihini döner
       const [queries, statDays] = createQueries();
       /*
       Querylerin sonuçları aşağıdaki gibi dönmekte. dolayısıyla total_user bilgisine
@@ -27,7 +28,7 @@ module.exports = {
           const dailyStats = [];
           // values[0][0] total kullanıcı sayısı olduğu için response'de günlük
           // veriler içerisinde bulunmayacak. Bu sebeple i =1 olarak başlanıyor
-          // Ayrıca her 3 eleman 1 günün verisi olduğu için for döngüsü
+          // Ayrıca her 3 eleman,1 günün verisi olduğu için for döngüsü
           // (yapılan sorgu sayısı-1) kere dönmeli -Total Count bir kere çağırıldığı için-
           // her bir döngüde 3 elemanı birden okuduğumuz için i +=3 olarak ilerliyor.
           for (let i = 1; i <= (values.length - 1); i += 3) {
