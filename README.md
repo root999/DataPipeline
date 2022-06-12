@@ -4,6 +4,10 @@ The main purpose of this repository is to showcase a Data pipeline project that 
 When system publish a message to PubSub topic, a DataFlow job in GCP takes the message and sends it to Big Query table. Users can get daily statistics using 
 api/getMetrics endpoint.
 
+
+![Basic illustration of the system](BasicFigure.png)
+
+
 ## Example request-response for POST /api/sendEvents
 
 ### Request
