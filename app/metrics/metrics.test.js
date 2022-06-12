@@ -3,12 +3,15 @@ const request = require('supertest');
 const app = require('../index');
 const config = require('../config');
 
+jest.setTimeout(30000);
 describe('BigQuery Daily Metrics', () => {
-  test('should responses with daily metrics', async () => {
-    const res = await request(app)
-      .get('/api/metrics')
-      .auth('Authorization', `Bearer ${config.authToken.token}`)
-      .send();
-    expect(200);
+  describe('Get daily metrics', () => {
+    test('When user calls endpoint, the service should return daily metrics succesfully', async () => {
+      const res = await request(app)
+        .get('/api/metrics')
+        .auth(config.authToken.token, { type: 'bearer' })
+        .send();
+      expect(200);
+    });
   });
 });

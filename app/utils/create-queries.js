@@ -7,12 +7,13 @@ const createQueries = () => {
   const queries = [];
   const { tableName } = config.bigquery;
   const bigQueryClient = new BigQuery();
-  // statDays dizisi kullanıcının girdiği son X gün için ilgili queryleri hazırlıyoruz.
+  // statDays dizisi kullanıcının girdiği son 3 gün için ilgili queryleri hazırlıyoruz.
   for (let i = 0; i < 3; i += 1) {
     const date = new Date(); //  today's date as YYYY-MM-DD
     date.setDate(date.getDate() - i);
     statsDays.push(date.toLocaleDateString('tr-TR'));
   }
+  // Toplam kullanıcı sayısı
   const queryTotalUserCount = `SELECT COUNT(*) as total_users
   FROM (SELECT COUNT(*) 
           FROM \`${tableName}\`  
@@ -20,18 +21,21 @@ const createQueries = () => {
 
   queries.push(queryBQ(bigQueryClient, queryTotalUserCount));
 
+  // Sorgular içerisindeki current_date('UTC+3')-${i} ile sorgunun yapıldığı tarih baz alınarak
+  // X gün öncesine kadar tüm günler için istatistikler sorgu olarak çalıştırılmaktadır.
   for (let i = 0; i < statsDays.length; i += 1) {
+    // Günlük Aktif kullanıcı sayısı.
     const queryDailyActiveUserCount = `SELECT COUNT(DISTINCT user_id) as active_user_count 
     FROM \`${tableName}\` 
     WHERE DATE(event_time) = current_date('UTC+3')-${i}`;
-
+    // Günlük ortalama session süresi
     const queryDailyActiveSession = `SELECT AVG(timediff) as daily_average_session
             FROM 
             (SELECT time_diff(TIME(MAX(event_time)),TIME(MIN(event_time)),MINUTE) as timediff 
                 FROM \`${tableName}\` 
                 WHERE DATE(event_time) = current_date('UTC+3')-${i}
                 GROUP BY session_id)`;
-
+    // Günlük yeni kullanıcı sayısı
     const queryDailyNewUserCount = `SELECT COUNT (DISTINCT t1.user_id) as daily_new_user FROM \`${tableName}\` as t1 
                 LEFT JOIN (SELECT user_id FROM \`${tableName}\` 
                             WHERE DATE(event_time)<(current_date('UTC+3')-${i})GROUP BY user_id) as t2 
